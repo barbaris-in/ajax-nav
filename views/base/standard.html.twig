@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script>
+        jQuery(document).ready(function ($) {
+            var loadContent = function (url, pushState) {
+                $.get(url, function (data, status, xhr) {
+                    if (pushState) {
+                        window.history.pushState("", "", url);
+                    }
+                    $("#content").html(data);
+                    document.title = xhr.getResponseHeader('X-Ajax-Title');
+                });
+            };
+
+            window.onpopstate = function (event) {
+                console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+                loadContent(document.location, false);
+            };
+
+            $("#menu a").click(function (e) {
+                var me = $(this), url = me.attr('href');
+                loadContent(url, true);
+                e.preventDefault();
+            })
+        });
+    </script>
+</head>
+<body>
+<ul id="menu" style="float: left; width: 200px">
+    <li><a href="/?action=index">index</a></li>
+    <li><a href="/?action=friends">friends</a></li>
+    <li><a href="/?action=audio">audio</a></li>
+    <li><a href="/?action=messages">messages</a></li>
+    <li><a href="/?action=settings">settings</a></li>
+</ul>
+<div id="content" class="content" style="margin-left: 220px;">
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+</html>
